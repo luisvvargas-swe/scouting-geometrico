@@ -18,11 +18,75 @@ function element(tag, text, className) {
   return node;
 }
 
+// The pitch provides a backdrop. Only the four labeled radar axes represent data.
+function drawRadar(players) {
+  const canvas = document.querySelector("#radar");
+  const ctx = canvas.getContext("2d");
+  const center = [320, 154];
+  const radius = 108;
+  const directions = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  function position(index, fraction) {
+    const [dx, dy] = directions[index];
+    return [center[0] + dx * radius * fraction, center[1] + dy * radius * fraction];
+  }
+  function polygon(points, fill, stroke) {
+    ctx.beginPath();
+    points.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    ctx.closePath();
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    ctx.strokeStyle = stroke;
+    ctx.stroke();
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "#42404d";
+  ctx.strokeRect(10, 14, 620, 278);
+  ctx.strokeRect(10, 82, 61, 142);
+  ctx.strokeRect(569, 82, 61, 142);
+  ctx.strokeRect(10, 110, 24, 86);
+  ctx.strokeRect(606, 110, 24, 86);
+  ctx.beginPath();
+  ctx.moveTo(320, 14); ctx.lineTo(320, 292);
+  ctx.stroke();
+  ctx.beginPath(); ctx.arc(...center, 38, 0, 2 * Math.PI); ctx.stroke();
+
+  [0.25, 0.5, 0.75, 1].forEach(scale => {
+    polygon(directions.map((_, i) => position(i, scale)), null, "#71667d");
+  });
+  ctx.strokeStyle = "#61566c";
+  directions.forEach((_, i) => {
+    ctx.beginPath(); ctx.moveTo(...center); ctx.lineTo(...position(i, 1)); ctx.stroke();
+  });
+  const colors = ["#79ffbd", "#b99aff"];
+  players.forEach((player, playerIndex) => {
+    const points = player.stats.map((value, i) => position(i, maxima[i] ? value / maxima[i] : 0));
+    ctx.lineWidth = 3;
+    ctx.setLineDash(playerIndex ? [7, 4] : []);
+    polygon(points, playerIndex ? "#ad86ff33" : "#79ffbd22", colors[playerIndex]);
+    ctx.setLineDash([]);
+    ctx.fillStyle = colors[playerIndex];
+    points.forEach(([x, y]) => {
+      ctx.save(); ctx.translate(x, y);
+      if (playerIndex) ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-3, -3, 6, 6); ctx.restore();
+    });
+  });
+  ctx.font = "600 17px ui-monospace, monospace";
+  ctx.fillStyle = "#f0eef7";
+  ctx.textBaseline = "middle";
+  [["Goles",320,27,"center"],["Asistencias",443,154,"left"],["Minutos",320,280,"center"],["Tiros/90",197,154,"right"]]
+    .forEach(([text, x, y, align]) => { ctx.textAlign = align; ctx.fillText(text, x, y); });
+  canvas.setAttribute("aria-label", "Perfil relativo de " + players[0].name + " y " + players[1].name +
+    ". Los valores se detallan en Perfil de juego.");
+}
+
 function compare(reference, candidate) {
   const players = [scoutingAthletes[reference], scoutingAthletes[candidate]];
   key.replaceChildren(...players.map((player, index) =>
     element("span", player.name, index === 0 ? "key-reference" : "key-candidate")
   ));
+  document.querySelector("#radar-key").replaceChildren(...Array.from(key.children, item => item.cloneNode(true)));
+  drawRadar(players);
   const rows = metricLabels.map((title, column) => {
     const row = element("div", undefined, "metric");
     row.append(element("h3", title));

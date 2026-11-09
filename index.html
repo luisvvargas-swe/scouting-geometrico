@@ -4,24 +4,36 @@
   <meta charset="utf-8">
   <meta name="author" content="Luis Armando Vargas Peña">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f6f6ee">
+  <meta name="theme-color" content="#0c0c12">
   <meta name="description" content="Compara futbolistas de muestra por goles, asistencias, minutos y tiros, con distancias euclidiana y Manhattan. Una demo de Luis Vargas.">
   <title>Scouting geométrico · Luis Vargas</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="styles.css">
   <script src="model.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
-  <header class="top"><a href="https://luisvvargas-swe.github.io/#proyectos" class="return">← Portafolio de Luis Vargas</a><span class="top-detail">Análisis de datos</span></header>
+  <a class="skip" href="#controles">Ir al comparador</a>
+  <header class="top">
+    <div class="brand"><img src="favicon.png" width="34" height="34" alt=""><span>Scouting geométrico</span></div>
+    <a href="https://luisvvargas-swe.github.io/#proyectos" class="return">Portafolio de Luis Vargas <span aria-hidden="true">↗</span></a>
+  </header>
   <main>
     <section class="intro" aria-labelledby="title">
-      <div class="kicker"><span class="marker"></span> Laboratorio de fútbol</div>
-      <h1 id="title">Scouting geométrico<span>.</span></h1>
-      <p>Encuentra futbolistas con un perfil estadístico parecido. Cambia la referencia o la forma de medir la distancia para explorar cómo varía la selección.</p>
-      <small>9 jugadores ficticios · 4 estadísticas · Datos de muestra</small>
+      <div class="intro-copy">
+        <p class="kicker">Análisis de futbolistas</p>
+        <h1 id="title">Scouting <em>geométrico</em></h1>
+        <p class="lead">Encuentra jugadores con un perfil parecido. Elige una referencia y compara su producción con el resto del plantel.</p>
+        <small>9 jugadores ficticios <i aria-hidden="true">/</i> 4 estadísticas</small>
+      </div>
+      <figure class="radar">
+        <figcaption>Perfil relativo <span>· escala 0–100 %</span></figcaption>
+        <canvas id="radar" width="640" height="310" role="img" aria-label="Comparación visual de cuatro indicadores. Los valores se detallan en Perfil de juego."></canvas>
+        <div class="plot-key radar-key" id="radar-key"></div>
+      </figure>
     </section>
     <noscript>Activa JavaScript para cambiar los jugadores y calcular sus distancias.</noscript>
-    <div class="toolbar">
+    <div class="toolbar" id="controles">
       <div class="field"><label for="reference">Jugador de referencia</label><select id="reference"></select></div>
       <fieldset><legend>Método de distancia</legend>
         <div class="switch">
@@ -33,14 +45,15 @@
     <p id="announcement" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
     <div class="results">
       <section class="plot" aria-labelledby="comparison">
-        <div class="plot-title"><p class="eyebrow">Comparación individual</p><h2 id="comparison">Perfil de juego</h2></div>
+        <h2 id="comparison">Perfil de juego</h2>
         <div class="plot-key" id="key"></div>
         <div class="metrics" id="metrics"></div>
-        <p class="plot-note">Cada barra usa como escala el valor más alto de esa estadística entre los nueve jugadores.</p>
+        <p class="plot-note">Cada indicador usa como escala el valor más alto entre los nueve jugadores. Las barras muestran las cifras originales.</p>
       </section>
       <section class="rank" aria-labelledby="rank-title">
-        <p class="eyebrow">Distancia estadística</p><h2 id="rank-title">Los más parecidos</h2>
-        <p class="note">Elige un jugador para comparar su perfil. Un valor menor indica más similitud.</p>
+        <h2 id="rank-title">Los más parecidos</h2>
+        <p class="note">Selecciona un jugador. Una distancia menor indica más similitud.</p>
+        <div class="rank-head" aria-hidden="true"><span>Pos.</span><span>Jugador</span><span>Distancia</span></div>
         <ol id="ranking"></ol>
       </section>
     </div>
